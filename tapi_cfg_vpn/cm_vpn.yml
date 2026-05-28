@@ -1,5 +1,5 @@
 ---
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
 
 - comment: |
     VPN tunnels on Agents: WireGuard and IPsec, at the level of the

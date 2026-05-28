@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: Apache-2.0 */
+/* SPDX-License-Identifier: MIT */
 /* Copyright (C) 2026 Interpretica Unipessoal Lda */
 /** @file
  * @brief Engine-side TAPI for the /agent/vpn subtree
