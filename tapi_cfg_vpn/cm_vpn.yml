@@ -1,0 +1,228 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+
+- comment: |
+    VPN tunnels on Agents: WireGuard and IPsec, at the level of the
+    kernel interfaces that carry them rather than of a management
+    daemon. A daemon (wg-quick, strongSwan) is an alternative backend,
+    not the model.
+
+    Copyright (C) 2026 Interpretica Unipessoal Lda. All rights reserved.
+
+- register:
+
+    - oid: "/agent/vpn"
+      access: read_only
+      type: none
+      d: |
+         Root of the VPN configuration tree.
+         Name: empty
+
+    - oid: "/agent/vpn/backend"
+      access: read_write
+      type: string
+      d: |
+         How the subtree is applied to the system.
+         Name: empty
+         Value: "kernel" (ip link / wg / ip xfrm, the default),
+                "wg-quick" (WireGuard through wg-quick),
+                "swanctl" (IPsec through strongSwan)
+
+    # --- WireGuard ------------------------------------------------------
+
+    - oid: "/agent/vpn/wireguard"
+      access: read_create
+      type: none
+      d: |
+         One WireGuard interface.
+         Name: the interface name, e.g. "wg0"
+
+    - oid: "/agent/vpn/wireguard/private_key"
+      access: read_write
+      type: string
+      d: |
+         The interface's private key, base64.
+         Name: empty
+
+    - oid: "/agent/vpn/wireguard/public_key"
+      access: read_only
+      type: string
+      volatile: true
+      d: |
+         The public key derived from the private one, base64.
+         Name: empty
+
+    - oid: "/agent/vpn/wireguard/listen_port"
+      access: read_write
+      type: int32
+      d: |
+         UDP port to listen on; 0 for an ephemeral one.
+         Name: empty
+
+    - oid: "/agent/vpn/wireguard/fwmark"
+      access: read_write
+      type: int32
+      d: |
+         Firewall mark on outgoing packets; 0 for none.
+         Name: empty
+
+    - oid: "/agent/vpn/wireguard/address"
+      access: read_write
+      type: string
+      d: |
+         Address to put on the interface, CIDR; empty for none.
+         Name: empty
+
+    - oid: "/agent/vpn/wireguard/status"
+      access: read_only
+      type: int32
+      volatile: true
+      d: |
+         Is the interface up.
+         Name: empty
+         Value: 0 or 1
+
+    - oid: "/agent/vpn/wireguard/peer"
+      access: read_create
+      type: none
+      d: |
+         One peer of the interface.
+         Name: the peer's public key, base64
+
+    - oid: "/agent/vpn/wireguard/peer/endpoint"
+      access: read_write
+      type: string
+      d: |
+         Where to reach the peer, host:port; empty to leave it roaming.
+         Name: empty
+
+    - oid: "/agent/vpn/wireguard/peer/allowed_ips"
+      access: read_write
+      type: string
+      d: |
+         Comma-separated prefixes routed to this peer.
+         Name: empty
+
+    - oid: "/agent/vpn/wireguard/peer/preshared_key"
+      access: read_write
+      type: string
+      d: |
+         Optional symmetric key mixed into the handshake, base64.
+         Name: empty
+
+    - oid: "/agent/vpn/wireguard/peer/persistent_keepalive"
+      access: read_write
+      type: int32
+      d: |
+         Seconds between keepalives; 0 for none.
+         Name: empty
+
+    - oid: "/agent/vpn/wireguard/peer/latest_handshake"
+      access: read_only
+      type: int32
+      volatile: true
+      d: |
+         Seconds since the last completed handshake, -1 if never.
+         Name: empty
+
+    - oid: "/agent/vpn/wireguard/peer/rx_bytes"
+      access: read_only
+      type: int64
+      volatile: true
+      d: |
+         Bytes received from this peer.
+         Name: empty
+
+    - oid: "/agent/vpn/wireguard/peer/tx_bytes"
+      access: read_only
+      type: int64
+      volatile: true
+      d: |
+         Bytes sent to this peer.
+         Name: empty
+
+    # --- IPsec (kernel xfrm) -------------------------------------------
+
+    - oid: "/agent/vpn/ipsec"
+      access: read_create
+      type: none
+      d: |
+         One security association (one direction), programmed into the
+         kernel's xfrm directly rather than negotiated by IKE.
+         Name: a label chosen by the test
+
+    - oid: "/agent/vpn/ipsec/local"
+      access: read_write
+      type: address
+      d: |
+         Source address of the SA.
+         Name: empty
+
+    - oid: "/agent/vpn/ipsec/remote"
+      access: read_write
+      type: address
+      d: |
+         Destination address of the SA.
+         Name: empty
+
+    - oid: "/agent/vpn/ipsec/spi"
+      access: read_write
+      type: int32
+      d: |
+         Security parameter index.
+         Name: empty
+
+    - oid: "/agent/vpn/ipsec/proto"
+      access: read_write
+      type: string
+      d: |
+         Protocol.
+         Name: empty
+         Value: "esp" or "ah"
+
+    - oid: "/agent/vpn/ipsec/mode"
+      access: read_write
+      type: string
+      d: |
+         Mode.
+         Name: empty
+         Value: "transport" or "tunnel"
+
+    - oid: "/agent/vpn/ipsec/enc_alg"
+      access: read_write
+      type: string
+      d: |
+         Encryption algorithm as the kernel names it, e.g.
+         "rfc3686(ctr(aes))" or "cbc(aes)"; empty for none, which is a
+         finding in itself.
+         Name: empty
+
+    - oid: "/agent/vpn/ipsec/enc_key"
+      access: read_write
+      type: string
+      d: |
+         Encryption key, hex with a 0x prefix.
+         Name: empty
+
+    - oid: "/agent/vpn/ipsec/auth_alg"
+      access: read_write
+      type: string
+      d: |
+         Integrity algorithm, e.g. "hmac(sha256)"; empty for none.
+         Name: empty
+
+    - oid: "/agent/vpn/ipsec/auth_key"
+      access: read_write
+      type: string
+      d: |
+         Integrity key, hex with a 0x prefix.
+         Name: empty
+
+    - oid: "/agent/vpn/ipsec/status"
+      access: read_only
+      type: int32
+      volatile: true
+      d: |
+         Is the SA present in the kernel.
+         Name: empty
+         Value: 0 or 1
