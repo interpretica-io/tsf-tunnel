@@ -104,10 +104,16 @@ repositories:
 
 ```
 TE_EXT_REPO_USE([tsf_tunnel], [], [tapi_cfg_vpn])
-TE_EXT_REPO_USE([tsf_tunnel], [<agent platform>], [])
+TE_EXT_REPO_USE([tsf_tunnel], [<agent platform>], [ta_vpn])
 TE_TA_TYPE([<ta type>], [<agent platform>], [unix],
-           [...], [], [], [], [... tapi_cfg_vpn ta_vpn])
+           [...], [], [], [], [... ta_vpn])
 ```
+
+The two halves live on different platforms. `tapi_cfg_vpn` is the
+engine half and is built shared only, because it calls `confapi`.
+`ta_vpn` does not depend on it, so the agent platform builds `ta_vpn`
+alone. Add `ta_vpn` to the agent platform's library list in
+`TE_PLATFORM` as well.
 
 Requires TE with `TE_EXT_REPO` support. On the agent it needs
 `wireguard-tools` and `iproute2`, plus `strongswan` for the `swanctl`

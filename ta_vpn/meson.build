@@ -6,6 +6,9 @@
 # ta_vpn_conf_ext.c registers the /agent/vpn subtree without Test Agent
 # modifications. Drives the low level - ip, wg, ip xfrm - by default,
 # with wg-quick and swanctl as alternative backends.
+#
+# Nothing here calls tapi_cfg_vpn: it is the engine half, built shared
+# only (it needs confapi), so an agent has no static copy to link with.
 
 link_whole = true
 
@@ -29,5 +32,4 @@ te_libs += [
     'rpc_types',
     'tools',
     'rcfpch',
-    'tapi_cfg_vpn',
 ]
